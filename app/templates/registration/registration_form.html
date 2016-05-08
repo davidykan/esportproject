@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    {% include 'head.html' %}
+    <body class='register'>
+
+
+    <div class="container">
+        <header>
+
+        <h1>Sign up for <a href="{% url 'home' %}" id="logo">esport tracker</a> today</h1>
+        <hr>
+      </header>
+
+    <div class="row">
+        <div class="benefits col-md-6">
+          <h2>Fast</h2>
+          <p>It should only take a moment and lets you access many other awesome features.</p>
+          <h2>Favorites</h2>
+          <p>Get notifications when your favorite streams are online.</p>
+          <h2>Easy</h2>
+          <p>Get the latest streams from around the world at a click of a button.</p>
+        </div>
+        <div class="signup col-md-6">
+            <form method = 'POST' action = ''>{% csrf_token %}
+                {{ form }}
+                <div class="form-group last border-top">
+                    <input class="form-control input-lg" value="Create Free Account" type="submit">
+                </div>
+            </form>
+            <h5 class="login">Already have an account? <a href="{% url 'auth_login' %}">Log In</a></h5>
+        </div>
+
+    </div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+    </body>
+</html>

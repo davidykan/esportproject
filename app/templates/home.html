@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+    {% include 'head.html' %}
+    <body>
+
+        <header>
+            <div class="container">
+                <a href="{% url 'home' %}" id="logo">esport tracker</a><!--
+                --><form method="GET">
+                    <input id="query" name="q" value=
+                    "{% if query %}{{ query }}{% endif %}"
+                    type="text"><!--
+                    --><button type="submit">Search</button>
+                </form>
+                <ul>
+
+                    {% if request.user.is_authenticated %}
+                        <li class="dropdown"><a href="" class="dropdown-toggle" data-toggle="dropdown">{{ user|title }}<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'favorites' %}">Favorites</a></li>
+                                <li><a href="{% url 'recent' %}">Recent</a></li>
+                                <li class="divider"></li>
+                                <li><a href="{% url 'logout' %}">Log Out</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'auth_login' %}">Login</a></li>
+                        <li><a href="{% url 'registration_register' %}">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </header>
+
+
+        <div class="tabs">
+            <div class="container">
+                <ul class="game">
+                    {% if option == 'favorites' %}
+                        <li class='title'>Favorites</li>
+                    {% elif option == 'recent' %}
+                        <li class='title'>Recently Viewed</li>
+                    {% endif %}
+                    {% if option == 'home' or option == 'game' %}
+                        <li class="dropdown">
+                            {% if optional_game %}
+                                <a href="" class="dropdown-toggle active" data-toggle="dropdown">{{ optional_game }}<span class="caret"></span></a>
+                            {% else %}
+                                <a href="" class="dropdown-toggle" data-toggle="dropdown">Games<span class="caret"></span></a>
+                            {% endif %}
+                            <ul class="dropdown-menu">
+                                {% if get_url %}
+                                    {% for g in game_table %}
+                                        <li><a href="{{ abs }}game/{{ g.game }}{{ get_url }}">{{ g.game }}</a></li>
+                                    {% endfor %}
+                                {% else %}
+                                    {% for g in game_table %}
+                                        <li><a href="{{ abs }}game/{{ g.game }}">{{ g.game }}</a></li>
+                                    {% endfor %}
+                                {% endif %}
+                            </ul>
+                        </li><!--
+                        --><li class="dropdown">
+                            {% if source_get %}
+                                <a href="" class="dropdown-toggle active" data-toggle="dropdown">{{ source_get|title }}<span class="caret"></span></a>
+                            {% else %}
+                                <a href="" class="dropdown-toggle" data-toggle="dropdown">Sources<span class="caret"></span></a>
+                            {% endif %}
+                            <ul class="dropdown-menu">
+                                {% for s in source_tab %}
+                                    <li>
+                                        <form method="get">
+                                            {% if language_get %}
+                                                <input type='hidden' name='language' value="{{ language_get }}"></input>
+                                            {% endif %}
+                                            {% if query %}
+                                                <input type='hidden' name='q' value="{{ query }}"></input>
+                                            {% endif %}
+                                            <button type="submit" name='source' value='{{ s.source.lower }}'>{{ s.source }}</button>
+                                        </form>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li><!--
+                        --><li class="dropdown">
+                            {% if language_get %}
+                                <a href="" class="dropdown-toggle active" data-toggle="dropdown">{{ language_get|title }}<span class="caret"></span></a>
+                            {% else %}
+                                <a href="" class="dropdown-toggle" data-toggle="dropdown">Languages<span class="caret"></span></a>
+                            {% endif %}
+                            <ul class="dropdown-menu">
+                                {% for l in language_tab %}
+                                    <li>
+                                        <form method="get">
+                                            {% if source_get %}
+                                                <input type='hidden' name='source' value="{{ source_get }}"></input>
+                                            {% endif %}
+                                            {% if query %}
+                                                <input type='hidden' name='q' value="{{ query }}"></input>
+                                            {% endif %}
+                                            <button type="submit" name='language' value='{{ l.language.lower }}'>{{ l.language }}</button>
+                                        </form>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% if source_get or language_get or optional_game or query %}
+                            <li>
+                                <a href="{{ abs }}">Clear</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+
+            </div>
+        </div>
+
+{% if total_items > 0 %}
+    <div class="container results">Page {{ cur_page }} of {{ total_items }} results</div>
+{% endif %}
+
+<div class="container streams">
+    <div class="row">
+        {{ start }}
+        {% for e in entry %}
+            <div class="col-lg-15 col-md-15 col-sm-15 col-xs-15">
+        	    <div class="thumbnail">
+            		<img style="height: 138.375px;" src="{{ e.preview }}">
+            		<div class="caption">
+            			<a href="{% url 'external' %}?source_id={{ e.source_id }}&external={{ e.url }}" target="newtab"><h6 class="title">{{ e.title }}</h6></a>
+                        <h6 class="name">{{ e.name_display }} playing on {{ e.source }}</h6>
+            			<h6 class="viewers"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ e.viewers }}</h6>
+            			{% if e.source_id in favorites_array %}
+                            <a class="favorites red" href="{% url 'delete' %}?source_id={{ e.source_id }}"><span class="glyphicon glyphicon-heart" aria-hidden="true"></span> Favorites</a>
+                        {% else %}
+                            <a class="favorites" href="{% url 'add' %}?source_id={{ e.source_id }}"><span class="glyphicon glyphicon-heart" aria-hidden="true"></span> Favorites</a>
+                        {% endif %}
+            		</div>
+        	    </div>
+            </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+{% if total_items == 0 %}
+    <div class="container">
+        <div class="empty">
+            <p>We did not find any results. Try the suggestions below or type a new query above.</p>
+            <div>
+                <h3>Suggestions:</h3>
+                <ul>
+                    <li><a href="{{ abs }}">Reset Filters</a>
+                    </li>
+                    <li>Check your spelling.</li>
+                    <li>Try more general words.</li>
+                    <li>Try different words that mean the same thing.</li>
+                </ul>
+            </div>
+        </div>
+	</div>
+{% endif %}
+
+{% if total_items > 0 %}
+    <div class="paging-holder">
+        <div class="paging">
+            <ul>
+                <li>
+                    <form method="get">
+                        {% if source_get %}
+                            <input type='hidden' name='source' value="{{ source_get }}"></input>
+                        {% endif %}
+                        {% if language_get %}
+                            <input type='hidden' name='language' value="{{ language_get }}"></input>
+                        {% endif %}
+                        {% if query %}
+                            <input type='hidden' name='q' value="{{ query }}"></input>
+                        {% endif %}
+                        <button type="submit" name='start' value='1'>&lt;&lt;</button>
+                    </form>
+                </li>
+                {% for page in loop %}
+                    <li
+                    {% if page == cur_page %}
+                        class = "current"
+                    {% endif %}
+                    >
+                        <form method="get">
+                            {% if source_get %}
+                                <input type='hidden' name='source' value="{{ source_get }}"></input>
+                            {% endif %}
+                            {% if language_get %}
+                                <input type='hidden' name='language' value="{{ language_get }}"></input>
+                            {% endif %}
+                            {% if query %}
+                                <input type='hidden' name='q' value="{{ query }}"></input>
+                            {% endif %}
+                            <button type="submit" name='start' value='{{ page }}'>{{ page }}</button>
+                        </form>
+                    </li>
+                {% endfor %}
+
+                <li>
+                    <form method="get">
+                        {% if source_get %}
+                            <input type='hidden' name='source' value="{{ source_get }}"></input>
+                        {% endif %}
+                        {% if language_get %}
+                            <input type='hidden' name='language' value="{{ language_get }}"></input>
+                        {% endif %}
+                        {% if query %}
+                            <input type='hidden' name='q' value="{{ query }}"></input>
+                        {% endif %}
+                        <button type="submit" name='start' value='{{ num_pages }}'>&gt;&gt;</button>
+                    </form>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+{% endif %}
+
+
+
+    </body>
+</html>

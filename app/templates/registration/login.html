@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    {% include 'head.html' %}
+    <body class='login'>
+    <div class="container">
+        <a href="{% url 'home' %}" id="logo">esport tracker</a>
+
+        <div class="panel">
+            <h3>Log in to your account</h3>
+            <form action="" method="post">{% csrf_token %}
+{{ form }}
+                <button class="btn btn-primary btn-lg btn-block" name="commit" tabindex="3" type="submit" value="Log In">Log In</button>
+            </form><a class="panel-footer" href="{% url 'registration_register' %}">Don't have an account? <span>Register</span></a>
+        </div>
+    </div>
+    </body>
+</html>
